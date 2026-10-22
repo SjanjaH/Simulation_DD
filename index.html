@@ -1,0 +1,515 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Кар'єрний дублер</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: робочий стіл консультанта — ліворуч налаштування й методика, праворуч розмова з дублером */
+:root{
+  --bg:#F3F4F7; --surface:#FFFFFF; --ink:#18202E; --muted:#596275; --line:#DCE0E8;
+  --accent:#2E3FB0; --accent-ink:#FFFFFF; --soft:#E9ECF8;
+  --mark:#FFE36B; --mark-ink:#18202E;
+  --warn:#A8461C; --warn-bg:#FBEDE5;
+  --f-display:"Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body:"Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11141B; --surface:#191D27; --ink:#E7EAF1; --muted:#9AA2B4; --line:#2B3140;
+  --accent:#8F9CFF; --accent-ink:#0E1120; --soft:#1F2542;
+  --mark:#5C4F12; --mark-ink:#FFF3B8; --warn:#F0A07A; --warn-bg:#3A2219; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D27; --ink:#E7EAF1; --muted:#9AA2B4; --line:#2B3140;
+  --accent:#8F9CFF; --accent-ink:#0E1120; --soft:#1F2542;
+  --mark:#5C4F12; --mark-ink:#FFF3B8; --warn:#F0A07A; --warn-bg:#3A2219; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:20px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(22px,3.4vw,30px);line-height:1.15;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0;max-width:62ch}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+
+.grid{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.setup{padding:18px;display:flex;flex-direction:column;gap:16px}
+.setup h2,.chat h2{font-family:var(--f-display);font-weight:500;font-size:15px;margin:0}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>label,.field>.lbl{font-weight:600;font-size:13px}
+.hint{font-size:12.5px;color:var(--muted);margin:0}
+input[type=text],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;box-sizing:border-box}
+textarea{resize:vertical;min-height:70px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;background:var(--bg)}
+.seg input:checked+label{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+.rubric textarea{font-family:var(--f-mono);font-size:12.5px;line-height:1.6;min-height:150px;background:var(--soft)}
+details.more summary{cursor:pointer;font-weight:600;font-size:13px}
+details.more[open] summary{margin-bottom:10px}
+.demo{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--soft)}
+.demo input{margin-top:4px;accent-color:var(--accent)}
+.demo label{font-size:13px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer;border-radius:8px;padding:9px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.ghost{background:transparent}
+button.chip{border-radius:999px;padding:6px 12px;font-size:13px;background:var(--soft);border-color:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.chat{display:flex;flex-direction:column;min-height:620px}
+.chat-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.steps li{font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.steps li.on{background:var(--mark);color:var(--mark-ink);border-color:transparent;font-weight:600}
+.steps li.done{color:var(--ink)}
+.steps li.done::before{content:"✓ "}
+.log{flex:1;padding:18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:68vh;min-height:300px}
+.msg{max-width:80%;min-width:0;display:flex;flex-direction:column;gap:4px}
+.msg .who{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.msg .body{padding:11px 14px;border-radius:12px;overflow-wrap:anywhere}
+.msg.ai{align-self:flex-start}
+.msg.ai .body{background:var(--soft);border-top-left-radius:3px}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.me .body{background:var(--accent);color:var(--accent-ink);border-top-right-radius:3px;white-space:pre-wrap}
+.msg.note{max-width:100%;align-self:stretch}
+.msg.note .body{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.msg.note .who .hl{font-family:var(--f-mono)}
+.msg.pause .body{background:var(--warn-bg);color:var(--ink)}
+.msg.pause .who{color:var(--warn)}
+.body p{margin:0 0 .6em}.body p:last-child{margin-bottom:0}
+.body ul,.body ol{margin:.2em 0 .6em;padding-left:1.2em}
+.body h4{font-family:var(--f-body);font-size:14px;margin:.8em 0 .3em}
+.body h4:first-child{margin-top:0}
+.thinking{color:var(--muted);font-style:italic}
+.empty{margin:auto;text-align:center;color:var(--muted);max-width:44ch;display:flex;flex-direction:column;gap:8px;align-items:center}
+.empty strong{font-family:var(--f-display);font-weight:500;color:var(--ink);font-size:16px}
+.actions{padding:0 18px 12px;display:flex;flex-wrap:wrap;gap:8px}
+.composer{border-top:1px solid var(--line);padding:12px 18px 16px;display:flex;flex-direction:column;gap:8px}
+.composer textarea{min-height:76px;background:var(--bg)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.status{font-size:12.5px;color:var(--muted)}
+.banner{margin:0 18px 12px;padding:10px 12px;border-radius:8px;background:var(--warn-bg);font-size:13.5px}
+.summary{margin-top:20px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.summary .body{min-width:0;overflow-wrap:anywhere}
+.fallback{display:flex;flex-direction:column;gap:8px}
+.fallback textarea{font-family:var(--f-mono);font-size:12px;min-height:200px}
+footer.foot{margin-top:18px;font-size:12.5px;color:var(--muted);max-width:80ch}
+@media (max-width:560px){.msg{max-width:94%}}
+@media (prefers-reduced-motion:no-preference){.msg{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">learnlab.digital · тренажер співбесід</div>
+      <h1>Кар'єрний дублер</h1>
+      <p class="sub">Клієнт тренує співбесіду між сесіями. Дублер працює <span class="hl">за вашою методикою</span>, а рішення й стратегію клієнт обговорює з консультантом.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- НАЛАШТУВАННЯ -->
+    <form class="panel setup" id="setup" autocomplete="off">
+      <h2>Налаштуй дублера</h2>
+
+      <div class="field">
+        <label for="role">Посада</label>
+        <input type="text" id="role" list="roles" value="Junior Project Manager">
+        <datalist id="roles">
+          <option value="Junior Project Manager"><option value="HR-менеджер/ка"><option value="Менеджер/ка з продажів">
+          <option value="Офіс-менеджер/ка"><option value="Аналітик/иня даних"><option value="Координатор/ка проєктів у ГО">
+        </datalist>
+      </div>
+
+      <div class="field">
+        <label for="ctx">Контекст кандидата</label>
+        <select id="ctx">
+          <option>Перехід з адміністративної роботи</option>
+          <option>Перша робота після навчання</option>
+          <option>Зміна професійної сфери</option>
+          <option>Ветеран/ветеранка повертається до цивільної роботи</option>
+          <option>ВПО: нове місто і нова сфера</option>
+          <option>Повернення після перерви (декрет, догляд за рідними)</option>
+          <option value="custom">Свій варіант…</option>
+        </select>
+        <input type="text" id="ctxCustom" placeholder="Опишіть ситуацію кандидата" hidden>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="styleLbl">Стиль рекрутера</span>
+        <div class="seg" role="radiogroup" aria-labelledby="styleLbl">
+          <input type="radio" name="style" id="st1" value="support" checked><label for="st1">Підтримувальний</label>
+          <input type="radio" name="style" id="st2" value="real"><label for="st2">Реалістичний</label>
+          <input type="radio" name="style" id="st3" value="tough"><label for="st3">Вимогливий</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lenLbl">Кількість запитань</span>
+        <div class="seg" role="radiogroup" aria-labelledby="lenLbl">
+          <input type="radio" name="len" id="ln3" value="3" checked><label for="ln3">3 запитання</label>
+          <input type="radio" name="len" id="ln5" value="5"><label for="ln5">5 запитань</label>
+        </div>
+      </div>
+
+      <div class="field rubric">
+        <label for="rubric">Рубрика консультанта</label>
+        <p class="hint">Тут живе ваша експертиза. За цими критеріями дублер дає зворотний зв'язок.</p>
+        <textarea id="rubric"></textarea>
+      </div>
+
+      <details class="more">
+        <summary>Текст вакансії (необов'язково)</summary>
+        <div class="field">
+          <textarea id="vacancy" placeholder="Вставте опис вакансії: дублер побудує запитання під її вимоги"></textarea>
+        </div>
+      </details>
+
+      <div class="demo">
+        <input type="checkbox" id="demo">
+        <label for="demo"><strong>Демо-сценарій для вебінару.</strong> Перше запитання фіксоване, з'являються кнопки слабкої та покращеної відповіді.</label>
+      </div>
+
+      <div class="btns">
+        <button type="submit" class="primary" id="startBtn">Почати співбесіду</button>
+        <button type="button" class="ghost" id="copyGpt">Інструкції для ChatGPT</button>
+      </div>
+      <div class="fallback" id="copyFallback" hidden>
+        <p class="hint">Копіювання заблоковано. Виділіть текст і скопіюйте вручну.</p>
+        <textarea id="copyArea" readonly aria-label="Текст для копіювання"></textarea>
+      </div>
+    </form>
+
+    <!-- РОЗМОВА -->
+    <section class="panel chat" aria-label="Співбесіда">
+      <div class="chat-head">
+        <h2 id="chatTitle">Співбесіда</h2>
+        <ol class="steps" id="steps">
+          <li data-s="interview">Співбесіда</li>
+          <li data-s="self">Самооцінка</li>
+          <li data-s="feedback">Зворотний зв'язок</li>
+          <li data-s="retry">Повторна спроба</li>
+        </ol>
+      </div>
+      <div class="log" id="log" aria-live="polite">
+        <div class="empty" id="empty">
+          <strong>Рекрутер чекає на кандидата</strong>
+          <span>Оберіть посаду й контекст ліворуч і натисніть «Почати співбесіду». Дублер ставитиме запитання по одному, потім попросить оцінити себе й дасть зворотний зв'язок за рубрикою.</span>
+        </div>
+      </div>
+      <div class="banner" id="unavail" hidden>Живий режим тут недоступний. Натисніть «Інструкції для ChatGPT» і вставте їх у новий чат ChatGPT або у власний GPT.</div>
+      <div class="actions" id="actions" hidden>
+        <button type="button" class="chip" id="aRetry">Перепрацювати відповідь</button>
+        <button type="button" class="chip" id="aSummary">Підсумок для консультанта</button>
+        <button type="button" class="chip" id="aReset">Нова співбесіда</button>
+      </div>
+      <div class="actions" id="demoChips" hidden>
+        <button type="button" class="chip" id="dWeak">Вставити слабку відповідь</button>
+        <button type="button" class="chip" id="dStrong">Вставити покращену відповідь</button>
+      </div>
+      <form class="composer" id="composer">
+        <label class="eyebrow" for="answer">Ваша відповідь</label>
+        <textarea id="answer" placeholder="Відповідайте так, як на справжній співбесіді…" disabled></textarea>
+        <div class="row">
+          <span class="status" id="status">Ctrl + Enter, щоб надіслати</span>
+          <div class="btns">
+            <button type="button" id="stopBtn" hidden>Зупинити</button>
+            <button type="submit" class="primary" id="sendBtn" disabled>Надіслати</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <section class="panel summary" id="summary" hidden>
+    <div class="row">
+      <div>
+        <div class="eyebrow">для сесії з консультантом</div>
+        <h2 style="font-family:var(--f-display);font-weight:500;font-size:17px;margin:4px 0 0">Підсумок тренування</h2>
+      </div>
+      <button type="button" id="copySummary">Скопіювати підсумок</button>
+    </div>
+    <p class="hint">Клієнт сам вирішує, чи передавати цей підсумок консультанту. Дублер не робить висновків про професійну придатність.</p>
+    <div class="body" id="summaryBody"></div>
+  </section>
+
+  <footer class="foot">Дублер — тренажер, а не оцінювач. Він не прогнозує результат співбесіди, не ставить діагнозів і не замінює консультанта. Відповіді обробляє ШІ, тому не вводьте прізвищ, контактів чи назв роботодавців, якщо не хочете ними ділитися.</footer>
+</div>
+
+<script>
+(function(){
+const $ = id => document.getElementById(id);
+const DEFAULT_RUBRIC =
+`1. Конкретика: реальна ситуація з досвіду, а не загальні слова.
+2. Дії кандидата: що саме робив він/вона, а не «ми» чи «команда».
+3. Результат: що змінилося, бажано з цифрами чи наслідками.
+4. Структура STAR: ситуація, завдання, дії, результат.
+5. Перенесення досвіду: попередній досвід перекладено мовою нової посади.
+6. Мотивація: зрозуміло, чому саме ця посада і чому зараз.`;
+$("rubric").value = DEFAULT_RUBRIC;
+
+const STYLES = {
+  support:"Підтримувальний: доброзичливий тон, уточнення м'які, даєш кандидату час. Підходить для першого тренування.",
+  real:"Реалістичний: нейтрально-діловий тон, як на звичайній співбесіді.",
+  tough:"Вимогливий: ставиш додаткові уточнення, просиш цифри й конкретні приклади, ввічливо, але наполегливо."
+};
+const DEMO_Q = "Розкажіть про ситуацію, коли ви організовували процес або проєкт від початку до кінця. Що саме робили ви і який був результат?";
+const DEMO_WEAK = "Ну, я працювала офіс-менеджеркою, там було багато всього. Організовувала різні заходи, займалася документами, допомагала команді. Загалом усе виходило добре, керівник був задоволений. Я вмію організовувати і люблю, коли все за планом.";
+const DEMO_STRONG = "Торік я організувала переїзд офісу на 35 людей. Склала план на шість тижнів, розбила його на етапи й домовилася з трьома підрядниками: перевізником, IT-службою та клінінгом. Щотижня надсилала команді короткий статус. Коли перевізник зірвав дату, за два дні знайшла заміну, і ми переїхали без жодного дня простою. Саме тоді я зрозуміла, що хочу робити це системно, як проєктна менеджерка.";
+
+function settings(){
+  const ctxSel = $("ctx").value;
+  return {
+    role: $("role").value.trim() || "Junior Project Manager",
+    ctx: ctxSel === "custom" ? ($("ctxCustom").value.trim() || "Не вказано") : ctxSel,
+    style: document.querySelector('input[name=style]:checked').value,
+    n: +document.querySelector('input[name=len]:checked').value,
+    rubric: $("rubric").value.trim() || DEFAULT_RUBRIC,
+    vacancy: $("vacancy").value.trim().slice(0, 6000),
+    demo: $("demo").checked
+  };
+}
+$("ctx").addEventListener("change", () => { $("ctxCustom").hidden = $("ctx").value !== "custom"; });
+
+function buildRules(s, markers){
+  const M = (m) => markers ? m : "";
+  const veteran = /ветеран/i.test(s.ctx) ? "\n- Кандидат має військовий досвід. Не розпитуй про бойові дії, поранення, втрати чи травматичні події. Працюй із навичками: відповідальність, ухвалення рішень, координація людей, робота з ресурсами. Допомагай перекладати військовий досвід мовою цивільної вакансії." : "";
+  const gap = /перерви|ВПО/i.test(s.ctx) ? "\n- Не змушуй кандидата виправдовуватися за перерву чи переїзд. Якщо питаєш про це, то лише щоб потренувати коротке впевнене пояснення." : "";
+  return `Ти — «Кар'єрний дублер»: тренажер співбесід, який працює за методикою кар'єрного консультанта. Ти граєш роль рекрутера, а після співбесіди стаєш тренером. Пиши українською, звертайся до кандидата на «ви».
+
+ПАРАМЕТРИ
+Посада: ${s.role}
+Контекст кандидата: ${s.ctx}
+Стиль рекрутера: ${STYLES[s.style]}
+Кількість основних запитань: ${s.n}
+${s.vacancy ? "Текст вакансії:\n<<<\n" + s.vacancy + "\n>>>\nБудуй запитання під вимоги цієї вакансії.\n" : ""}
+РУБРИКА КОНСУЛЬТАНТА (за нею даєш зворотний зв'язок)
+${s.rubric}
+
+ЕТАП 1. СПІВБЕСІДА
+- Став по одному основному запитанню і чекай відповіді.${M(" Кожне повідомлення з новим основним запитанням починай маркером [[Q:номер]], наприклад [[Q:1]]. Уточнення маркером не позначай.")}
+- Запитання будуй під посаду і контекст кандидата. Хоча б одне має бути поведінковим (про конкретну ситуацію з минулого), одне — про мотивацію або перехід.${s.demo ? "\n- Перше запитання постав дослівно: «" + DEMO_Q + "»" : ""}
+- Після відповіді можеш поставити ОДНЕ уточнення, якщо відповідь розмита або без результату. Потім переходь до наступного запитання.
+- Під час співбесіди не оцінюй і не давай порад. Допустима коротка нейтральна реакція в одне речення.
+- Твої репліки короткі: 1–3 речення.
+
+ЕТАП 2. САМООЦІНКА
+Після відповіді на останнє запитання (і можливого уточнення) скажи, що співбесіду завершено, і попроси кандидата оцінити себе: що в його відповідях вийшло найкраще і що він змінив би.${M(" Почни це повідомлення маркером [[SELF]].")}
+
+ЕТАП 3. ЗВОРОТНИЙ ЗВ'ЯЗОК
+Після самооцінки ${M("почни повідомлення маркером [[FEEDBACK]] і ")}дай зворотний зв'язок за рубрикою консультанта. Структура, з короткими підзаголовками:
+- З чим ти згоден у самооцінці кандидата (1–2 речення).
+- Сильні моменти: 2–3 пункти, з опорою на те, що кандидат реально сказав.
+- Що посилити: 2–3 пункти. Назви, чого бракує, з посиланням на критерій рубрики, і поясни, чому це важливо рекрутеру.
+- Зразок кращої структури для найслабшої відповіді. Використовуй лише факти кандидата; якщо фактів бракує, познач місця для них у квадратних дужках, наприклад [скільки людей], і нічого не вигадуй.
+- Заверши пропозицією перепрацювати одну відповідь.
+Обсяг до 280 слів.
+
+ЕТАП 4. ПОВТОРНА СПРОБА
+Якщо кандидат надсилає перепрацьовану відповідь, ${M("почни маркером [[RETRY]], ")}порівняй її з першою версією: що стало сильнішим (за рубрикою) і одна річ, яку ще можна додати. До 120 слів. Кандидат може пробувати кілька разів.
+
+ЧЕРВОНІ ЛІНІЇ
+- Не прогнозуй, чи візьмуть кандидата. Не став балів чи оцінок придатності. Не роби висновків про особистість чи психологічний стан.
+- Не вигадуй фактів про досвід кандидата.
+- Не став дискримінаційних запитань: про вік, сімейний стан, дітей чи плани на них, вагітність, здоров'я, релігію, національність.${veteran}${gap}
+- Якщо кандидат пише про сильне виснаження, тривогу, відчай або кризу, вийди з ролі рекрутера, відповідай тепло й коротко, порадь обговорити це з консультантом або фахівцем, якому він довіряє, і не продовжуй співбесіду, доки кандидат сам не попросить.${M(" Таке повідомлення починай маркером [[PAUSE]].")}
+- За потреби нагадуй: ти тренажер, а стратегію й рішення кандидат обговорює зі своїм консультантом.
+
+СТАРТ
+Першим повідомленням коротко привітайся як рекрутер (одне речення) і одразу постав запитання 1.`;
+}
+
+/* ---------- стан ---------- */
+let sample = null, ready = false;
+let turns = [], phase = "idle", qNow = 0, nTotal = 3, ctl = null, busy = false;
+const log = $("log");
+
+(window.claude?.use ? window.claude.use("sample") : Promise.resolve(null)).then(s => { sample = s; ready = true; if(!s) $("unavail").hidden = false; });
+setTimeout(() => { if(!ready) $("unavail").hidden = false; }, 11000);
+
+function esc(t){ return t.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function md(t){
+  const lines = esc(t.trim()).split(/\n/);
+  let out = "", list = null;
+  const inline = s => s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*])\*(?!\s)(.+?)\*/g,"$1<em>$2</em>");
+  const close = () => { if(list){ out += `</${list}>`; list = null; } };
+  for(const raw of lines){
+    const l = raw.trim();
+    let m;
+    if(!l){ close(); continue; }
+    if((m = l.match(/^#{1,6}\s+(.*)/))){ close(); out += `<h4>${inline(m[1])}</h4>`; continue; }
+    if((m = l.match(/^[-•*]\s+(.*)/))){ if(list!=="ul"){ close(); out+="<ul>"; list="ul"; } out += `<li>${inline(m[1])}</li>`; continue; }
+    if((m = l.match(/^\d+[.)]\s+(.*)/))){ if(list!=="ol"){ close(); out+="<ol>"; list="ol"; } out += `<li>${inline(m[1])}</li>`; continue; }
+    close(); out += `<p>${inline(l)}</p>`;
+  }
+  close(); return out;
+}
+const strip = t => t.replace(/\[\[[A-Z]+(?::\d+)?\]\]\s*/g, "").trim();
+
+function addMsg(kind, who, text){
+  $("empty")?.remove();
+  const w = document.createElement("div");
+  w.className = "msg " + kind;
+  const h = document.createElement("div"); h.className = "who";
+  if(kind === "note"){ const s = document.createElement("span"); s.className = "hl"; s.textContent = who; h.append(s); } else h.textContent = who;
+  const b = document.createElement("div"); b.className = "body";
+  if(kind === "me") b.textContent = text; else if(text) b.innerHTML = md(text);
+  w.append(h, b); log.append(w); log.scrollTop = log.scrollHeight;
+  return {w, h, b};
+}
+
+function setPhase(p){
+  phase = p;
+  const order = ["interview","self","feedback","retry"];
+  const idx = order.indexOf(p);
+  document.querySelectorAll("#steps li").forEach((li,i) => {
+    li.classList.toggle("on", i === idx);
+    li.classList.toggle("done", idx > -1 && i < idx);
+    if(li.dataset.s === "interview") li.textContent = (p === "interview" && qNow) ? `Співбесіда · ${qNow} з ${nTotal}` : "Співбесіда";
+  });
+  $("actions").hidden = !(p === "feedback" || p === "retry");
+  updateDemoChips();
+}
+function updateDemoChips(){
+  const on = settings().demo && phase !== "idle";
+  $("demoChips").hidden = !on;
+  $("dWeak").hidden = !(on && phase === "interview" && qNow <= 1);
+  $("dStrong").hidden = !(on && (phase === "feedback" || phase === "retry"));
+}
+
+function setBusy(b){
+  busy = b;
+  $("sendBtn").disabled = b || phase === "idle";
+  $("answer").disabled = b || phase === "idle";
+  $("stopBtn").hidden = !b;
+  $("startBtn").disabled = b;
+  $("aSummary").disabled = b; $("aRetry").disabled = b;
+  $("status").textContent = b ? "Дублер думає…" : "Ctrl + Enter, щоб надіслати";
+}
+
+const ERR = {
+  not_granted:"Доступ до Claude для цієї сторінки не дозволено. Скористайтеся інструкціями для ChatGPT.",
+  sampling_disabled:"Claude недоступний для цього облікового запису.",
+  rate_limited:"Забагато запитів поспіль або вичерпано ліміт. Спробуйте за хвилину.",
+  session_expired:"Сесія завершилася. Увійдіть у Claude знову.",
+  refused:"Дублер не зміг відповісти на це повідомлення. Сформулюйте інакше.",
+  empty_completion:"Дублер не дав відповіді. Надішліть повідомлення ще раз.",
+  prompt_too_large:"Розмова задовга. Почніть нову співбесіду."
+};
+
+async function ask(){
+  if(!sample){ $("unavail").hidden = false; return; }
+  const tier = (phase === "self" || phase === "feedback" || phase === "retry") ? "default" : "quick";
+  const view = addMsg("ai", "Рекрутер", "");
+  view.b.innerHTML = '<span class="thinking">Думає…</span>';
+  ctl = new AbortController(); setBusy(true);
+  try{
+    const {text} = await sample(turns, {cache:false, signal:ctl.signal, modelTier:tier,
+      onText: ({text}) => { view.b.innerHTML = md(strip(text)); log.scrollTop = log.scrollHeight; }});
+    turns.push({role:"assistant", content:text});
+    const qm = [...text.matchAll(/\[\[Q:(\d+)\]\]/g)].pop();
+    if(/\[\[PAUSE\]\]/.test(text)){ view.w.className = "msg ai pause"; view.h.textContent = "Пауза"; }
+    else if(/\[\[FEEDBACK\]\]/.test(text)){ view.w.className = "msg note"; view.h.textContent=""; const s=document.createElement("span"); s.className="hl"; s.textContent="Зворотний зв'язок"; view.h.append(s); setPhase("feedback"); }
+    else if(/\[\[RETRY\]\]/.test(text)){ view.w.className = "msg note"; view.h.textContent=""; const s=document.createElement("span"); s.className="hl"; s.textContent="Друга спроба"; view.h.append(s); setPhase("retry"); }
+    else if(/\[\[SELF\]\]/.test(text)){ view.h.textContent = "Дублер"; setPhase("self"); }
+    else if(qm){ qNow = +qm[1]; setPhase("interview"); }
+    view.b.innerHTML = md(strip(text));
+  }catch(e){
+    if(e && e.text){ view.b.innerHTML = md(strip(e.text)); turns.push({role:"assistant", content:e.text}); }
+    else view.w.remove();
+    if(e?.code !== "cancelled") $("status").textContent = ERR[e?.code] || "Зв'язок перервався. Надішліть повідомлення ще раз.";
+    if(e?.code === "not_granted" || e?.code === "sampling_disabled") $("unavail").hidden = false;
+    setBusy(false); if(e?.code !== "cancelled") return; return;
+  }
+  setBusy(false); $("answer").focus();
+}
+
+$("setup").addEventListener("submit", e => {
+  e.preventDefault();
+  if(busy) return;
+  const s = settings();
+  nTotal = s.n; qNow = 0;
+  turns = [{role:"user", content: buildRules(s, true) + "\n\nПочни співбесіду зараз."}];
+  log.innerHTML = "";
+  $("summary").hidden = true;
+  $("chatTitle").textContent = `Співбесіда: ${s.role}`;
+  $("startBtn").textContent = "Почати заново";
+  setPhase("interview");
+  ask();
+});
+
+$("composer").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("answer").value.trim();
+  if(!v || busy || phase === "idle") return;
+  turns.push({role:"user", content:v});
+  addMsg("me", "Кандидат", v);
+  $("answer").value = "";
+  if(turns.length > 60) turns.splice(1, 2);
+  ask();
+});
+$("answer").addEventListener("keydown", e => { if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); $("composer").requestSubmit(); } });
+$("stopBtn").addEventListener("click", () => ctl?.abort());
+
+$("dWeak").addEventListener("click", () => { $("answer").value = DEMO_WEAK; $("answer").focus(); });
+$("dStrong").addEventListener("click", () => { $("answer").value = "Перепрацьована відповідь на перше запитання:\n" + DEMO_STRONG; $("answer").focus(); });
+$("demo").addEventListener("change", updateDemoChips);
+$("aRetry").addEventListener("click", () => {
+  $("answer").value = "Перепрацьована відповідь на запитання [номер]:\n";
+  $("answer").focus();
+  const ta = $("answer"); ta.setSelectionRange(ta.value.length, ta.value.length);
+});
+$("aReset").addEventListener("click", () => { if(!busy) $("setup").requestSubmit(); });
+
+$("aSummary").addEventListener("click", async () => {
+  if(!sample || busy) return;
+  const s = settings();
+  const transcript = turns.slice(1).map(t => (t.role === "user" ? "Кандидат: " : "Дублер: ") + strip(t.content)).join("\n\n");
+  const prompt = `Ти допомагаєш кар'єрному консультанту. Нижче запис тренувальної співбесіди клієнта з ШІ-дублером.
+Посада: ${s.role}. Контекст: ${s.ctx}.
+Рубрика консультанта:
+${s.rubric}
+
+Склади українською підсумок для обговорення на сесії з консультантом. Розділи з підзаголовками (### ):
+### Що тренували
+### Самооцінка клієнта
+### Сильні сторони (за рубрикою)
+### Зони розвитку (за рубрикою)
+### Що змінилося в повторній спробі (якщо вона була; інакше пропусти розділ)
+### Запитання для рефлексії на сесії (3 запитання)
+### Що тренувати далі (2–3 кроки)
+Правила: опирайся лише на запис; без балів, без прогнозів щодо працевлаштування, без висновків про особистість чи психологічний стан. Не відтворюй запис дослівно. До 300 слів.
+
+ЗАПИС:
+${transcript.slice(-40000)}`;
+  $("summary").hidden = false;
+  const box = $("summaryBody");
+  box.innerHTML = '<span class="thinking">Готую підсумок…</span>';
+  $("summary").scrollIntoView({behavior:"smooth", block:"start"});
+  ctl = new AbortController(); setBusy(true);
+  try{
+    const {text} = await sample(prompt, {cache:false, signal:ctl.signal, onText:({text}) => { box.innerHTML = md(text); }});
+    box.innerHTML = md(text); box.dataset.raw = text;
+  }catch(e){
+    box.innerHTML = e?.text ? md(e.text) : "";
+    if(e?.code !== "cancelled") $("status").textContent = ERR[e?.code] || "Не вдалося скласти підсумок. Спробуйте ще раз.";
+  }
+  setBusy(false);
+});
+
+async function copy(text, btn, label){
+  try{ await navigator.clipboard.writeText(text); btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = label, 1800); }
+  catch(_){ $("copyFallback").hidden = false; $("copyArea").value = text; $("copyArea").focus(); $("copyArea").select(); }
+}
+$("copyGpt").addEventListener("click", e => copy(buildRules(settings(), false), e.currentTarget, "Інструкції для ChatGPT"));
+$("copySummary").addEventListener("click", e => copy($("summaryBody").dataset.raw || $("summaryBody").innerText, e.currentTarget, "Скопіювати підсумок"));
+})();
+</script>
+
+</body></html>
